@@ -1,0 +1,13 @@
+There's not really too much to tell at this point.
+
+This is the start of a python library for interfacing with your tivo device.
+I have some ideas of where to go with it from here, but to start with I've
+implemented a basic commandline utility to implement the functions that the 
+library provides.
+
+The code is available under the GPL version 2.
+
+Feel free to contact me if you have any thoughts, bugs, etc.
+
+--
+Gregory Boyce <gboyce@badbelly.com>
