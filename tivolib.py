@@ -119,7 +119,7 @@ def tivodecrypt(outfile, media):
     Takes the input file, output file and media access code (MAC) as arguments."""
     import subprocess
     try:
-      tivodecode = subprocess.Popen(['tivotestdecode', '-m', media, "-"],
+      tivodecode = subprocess.Popen(['tivodecode', '-m', media, "-"],
           stdin=subprocess.PIPE, stderr=open("/dev/null", 'w'),
           stdout=outfile)
     except OSError:
