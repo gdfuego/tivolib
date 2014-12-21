@@ -23,7 +23,12 @@ class tivoHandler():
 	import urllib2
 	import cookielib
         self.cj = cookielib.CookieJar()
-        self.ck = cookielib.Cookie(version=0, name='sid', value='0000000000000000', port=None, port_specified=False, domain=self.tivo, domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+        self.ck = cookielib.Cookie(version=0, name='sid', value='0000000000000000', 
+                                   port=None, port_specified=False, domain=self.tivo, 
+                                   domain_specified=False, domain_initial_dot=False, 
+                                   path='/', path_specified=True, secure=False, 
+                                   expires=None, discard=True, comment=None, 
+                                   comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
         self.cj.set_cookie(self.ck)
         self.urlhandler = urllib2
         self.authhandler = self.urlhandler.HTTPDigestAuthHandler()
@@ -114,12 +119,12 @@ def tivodecrypt(outfile, media):
     Takes the input file, output file and media access code (MAC) as arguments."""
     import subprocess
     try:
-      tivodecode = subprocess.Popen(['tivodecode', '-m', media, "-"],
+      tivodecode = subprocess.Popen(['tivotestdecode', '-m', media, "-"],
           stdin=subprocess.PIPE, stderr=open("/dev/null", 'w'),
           stdout=outfile)
     except OSError:
       print "tivodecode not found."
-      return -1 
+      return False 
     return tivodecode.stdin
 
 

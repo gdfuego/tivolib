@@ -136,7 +136,8 @@ def main():
         print
         print ('Downloading ' + name)
         print
-        if myTivo.download(myShow, filename, path=path, decrypt=options['decrypt'], encode=options['encode'], prog=progress):
+        if myTivo.download(myShow, filename, path=path, decrypt=options['decrypt'], 
+                           encode=options['encode'], prog=progress):
             print('\nDownload Complete')
         else:
             print('Download Failed')
