@@ -12,9 +12,11 @@ class tivoHandler():
         """Setup connection to the TiVo.
         Accepts mytivo variable containing the IP address or hostname of a Tivo
         device and media variable containing your Media Access Key"""
+        import ssl
         self.username = "tivo"
         self.tivo = mytivo
         self.media = media
+        self.context = ssl._create_unverified_context()
         self.connect()
 
     def connect(self):
@@ -38,7 +40,7 @@ class tivoHandler():
         self.urlhandler.install_opener(self.opener)
         try:
             url = "https://" + self.tivo + "/nowplaying/index.html"
-            self.pagehandle = self.urlhandler.urlopen(url)
+            self.pagehandle = self.urlhandler.urlopen(url, context=self.context)
         except IOError as e:
             if hasattr(e, 'code'):
                 if e.code != 401:
@@ -53,7 +55,7 @@ class tivoHandler():
         """Obtain a list of shows"""
         url = "https://" + self.tivo + \
             "/TiVoConnect?Container=%2FNowPlaying&Command=QueryContainer&Recurse=Yes"
-        self.pagehandle = self.urlhandler.urlopen(url)
+        self.pagehandle = self.urlhandler.urlopen(url, context=self.context)
         self.list = self.pagehandle.readlines()[0]
         self.shows = showParser(self.list)
         self.shows.sort(key=lambda show: show['Title'])
