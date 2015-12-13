@@ -20,8 +20,8 @@ class tivoHandler():
 
     def connect(self):
         """Establish the initial connection"""
-	import urllib2
-	import cookielib
+    import urllib2
+    import cookielib
         self.cj = cookielib.CookieJar()
         self.ck = cookielib.Cookie(version=0, name='sid', value='0000000000000000', 
                                    port=None, port_specified=False, domain=self.tivo, 
@@ -81,8 +81,8 @@ class tivoHandler():
         self.pagehandle = self.urlhandler.urlopen(self.myshow['Url'])
         headers = self.pagehandle.info().headers
         for header in headers:
-	          if header.split(" ")[0] == "TiVo-Estimated-Length:":
-	              self.filesize = int(header.split(" ")[1])
+              if header.split(" ")[0] == "TiVo-Estimated-Length:":
+                  self.filesize = int(header.split(" ")[1])
         self.bs = 512 * 1024 # .5MB at a time
         self.numblocks = self.filesize // self.bs
         for count in range(1, self.numblocks):
