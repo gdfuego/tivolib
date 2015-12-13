@@ -19,45 +19,23 @@ class tivoHandler():
         self.context = ssl._create_unverified_context()
         self.connect()
 
+    def tivo_request(self, url, stream=False):
+        import requests
+        requests.packages.urllib3.disable_warnings()
+        from requests.auth import HTTPDigestAuth
+        r = requests.get(url, auth=HTTPDigestAuth(self.username, self.media), verify=False, stream=stream)
+        return r
+
     def connect(self):
         """Establish the initial connection"""
-        import urllib2
-        import cookielib
-        self.cj = cookielib.CookieJar()
-        self.ck = cookielib.Cookie(version=0, name='sid', 
-                value='0000000000000000', port=None, port_specified=False, 
-                domain=self.tivo, domain_specified=False, 
-                domain_initial_dot=False, path='/', path_specified=True, 
-                secure=False, expires=None, discard=True, comment=None, 
-                comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
-        self.cj.set_cookie(self.ck)
-        self.urlhandler = urllib2
-        self.authhandler = self.urlhandler.HTTPDigestAuthHandler()
-        self.authhandler.add_password(realm="TiVo DVR", uri=self.tivo,
-                user=self.username, passwd=self.media)
-        self.opener = self.urlhandler.build_opener(self.authhandler, 
-                self.urlhandler.HTTPCookieProcessor(self.cj))
-        self.urlhandler.install_opener(self.opener)
-        try:
-            url = "https://" + self.tivo + "/nowplaying/index.html"
-            self.pagehandle = self.urlhandler.urlopen(url, context=self.context)
-        except IOError as e:
-            if hasattr(e, 'code'):
-                if e.code != 401:
-                    print('We got another error')
-                    print(e.code)
-            else:
-                print("Error 401")
-                print(e.headers)
-                print(e.headers['www-authenticate'])
+        r = self.tivo_request("https://" + self.tivo + "/nowplaying/index.htl")
 
     def listshows(self):
         """Obtain a list of shows"""
         url = "https://" + self.tivo + \
             "/TiVoConnect?Container=%2FNowPlaying&Command=QueryContainer&Recurse=Yes"
-        self.pagehandle = self.urlhandler.urlopen(url, context=self.context)
-        self.list = self.pagehandle.readlines()[0]
-        self.shows = showParser(self.list)
+        self.r = self.tivo_request(url)
+        self.shows = showParser(self.r.text)
         self.shows.sort(key=lambda show: show['Title'])
         return self.shows
 
@@ -81,16 +59,13 @@ class tivoHandler():
             self.fd = tivodecrypt(self.fd, self.media)
             if self.fd == False:
               return False
-        self.pagehandle = self.urlhandler.urlopen(self.myshow['Url'])
-        headers = self.pagehandle.info().headers
-        for header in headers:
-              if header.split(" ")[0] == "TiVo-Estimated-Length:":
-                  self.filesize = int(header.split(" ")[1])
+        self.r = self.tivo_request(self.myshow['Url'], stream=True)
+        self.filesize = int(self.r.headers['TiVo-Estimated-Length'])
         self.bs = 512 * 1024 # .5MB at a time
         self.numblocks = self.filesize // self.bs
         for count in range(1, self.numblocks):
             prog(count, self.numblocks)
-            self.block = self.pagehandle.read(self.bs)
+            self.block = self.r.raw.read(self.bs)
             self.fd.write(self.block)
         prog(self.numblocks, self.numblocks)
         self.block = self.pagehandle.read(self.filesize % self.bs)
