@@ -104,7 +104,7 @@ def main():
         path = options['storage']
     else:
         path = '.'
-    myTivo = tivolib.tivoHandler(options['tivo'], options['media'])
+    myTivo = tivolib.tivo_handler(options['tivo'], options['media'])
     shownum = 1
     shows = myTivo.listshows()
     for show in shows:
