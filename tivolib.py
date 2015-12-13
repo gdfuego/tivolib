@@ -33,8 +33,8 @@ class tivoHandler():
         self.cj.set_cookie(self.ck)
         self.urlhandler = urllib2
         self.authhandler = self.urlhandler.HTTPDigestAuthHandler()
-        self.authhandler.add_password("TiVo DVR", self.tivo, 
-                self.username, self.media)
+        self.authhandler.add_password(realm="TiVo DVR", uri=self.tivo,
+                user=self.username, passwd=self.media)
         self.opener = self.urlhandler.build_opener(self.authhandler, 
                 self.urlhandler.HTTPCookieProcessor(self.cj))
         self.urlhandler.install_opener(self.opener)
