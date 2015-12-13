@@ -20,8 +20,8 @@ class tivoHandler():
 
     def connect(self):
         """Establish the initial connection"""
-    import urllib2
-    import cookielib
+        import urllib2
+        import cookielib
         self.cj = cookielib.CookieJar()
         self.ck = cookielib.Cookie(version=0, name='sid', value='0000000000000000', 
                                    port=None, port_specified=False, domain=self.tivo, 
