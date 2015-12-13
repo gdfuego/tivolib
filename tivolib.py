@@ -2,13 +2,12 @@
 
 __version__ = "0.8"
 __author__ = "Gregory Boyce <gboyce@badbelly.com>"
-__copyright = "(c) Coypright 2010 by Gregory Boyce <gboyce@badbelly.com>"
+__copyright__ = "(c) Coypright 2010 by Gregory Boyce <gboyce@badbelly.com>"
 __license__ = "GPL"
 
 
 class tivoHandler():
     """Class for handling TiVo connections"""
-
     def __init__(self, mytivo, media):
         """Setup connection to the TiVo.
         Accepts mytivo variable containing the IP address or hostname of a Tivo
@@ -23,23 +22,23 @@ class tivoHandler():
         import urllib2
         import cookielib
         self.cj = cookielib.CookieJar()
-        self.ck = cookielib.Cookie(version=0, name='sid', value='0000000000000000', 
-                                   port=None, port_specified=False, domain=self.tivo, 
-                                   domain_specified=False, domain_initial_dot=False, 
-                                   path='/', path_specified=True, secure=False, 
-                                   expires=None, discard=True, comment=None, 
-                                   comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+        self.ck = cookielib.Cookie(version=0, name='sid', 
+                value='0000000000000000', port=None, port_specified=False, 
+                domain=self.tivo, domain_specified=False, 
+                domain_initial_dot=False, path='/', path_specified=True, 
+                secure=False, expires=None, discard=True, comment=None, 
+                comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
         self.cj.set_cookie(self.ck)
         self.urlhandler = urllib2
         self.authhandler = self.urlhandler.HTTPDigestAuthHandler()
-        self.authhandler.add_password("TiVo DVR", self.tivo, \
-            self.username, self.media)
-        self.opener = self.urlhandler.build_opener(self.authhandler, \
-            self.urlhandler.HTTPCookieProcessor(self.cj))
+        self.authhandler.add_password("TiVo DVR", self.tivo, 
+                self.username, self.media)
+        self.opener = self.urlhandler.build_opener(self.authhandler, 
+                self.urlhandler.HTTPCookieProcessor(self.cj))
         self.urlhandler.install_opener(self.opener)
         try:
-            self.pagehandle = self.urlhandler.urlopen("https://" + self.tivo + \
-              "/nowplaying/index.html")
+            url = "https://" + self.tivo + "/nowplaying/index.html"
+            self.pagehandle = self.urlhandler.urlopen(url)
         except IOError as e:
             if hasattr(e, 'code'):
                 if e.code != 401:
@@ -52,8 +51,9 @@ class tivoHandler():
 
     def listshows(self):
         """Obtain a list of shows"""
-        self.pagehandle = self.urlhandler.urlopen("https://" + self.tivo + \
-            "/TiVoConnect?Container=%2FNowPlaying&Command=QueryContainer&Recurse=Yes")
+        url = "https://" + self.tivo + \
+            "/TiVoConnect?Container=%2FNowPlaying&Command=QueryContainer&Recurse=Yes"
+        self.pagehandle = self.urlhandler.urlopen(url)
         self.list = self.pagehandle.readlines()[0]
         self.shows = showParser(self.list)
         self.shows.sort(key=lambda show: show['Title'])
@@ -63,7 +63,8 @@ class tivoHandler():
         """Stub Progress indicator"""
         return
 
-    def download(self, show, filename, path=".", decrypt=False, encode=False, prog=progress):
+    def download(self, show, filename, path=".", decrypt=False, 
+            encode=False, prog=progress):
         """Trigger a download for the specified TV show.
         Takes a show object as an argument."""
         import sys
@@ -116,7 +117,7 @@ def showParser(data):
 
 def tivodecrypt(outfile, media):
     """Decode a TiVo file and output an MPEG file.
-    Takes the input file, output file and media access code (MAC) as arguments."""
+    Takes the input/output files and media access code (MAC) as arguments."""
     import subprocess
     try:
       tivodecode = subprocess.Popen(['tivodecode', '-m', media, "-"],
