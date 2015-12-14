@@ -6,7 +6,7 @@ __copyright__ = "(c) Coypright 2010 by Gregory Boyce <gregory.boyce@gmail.com>"
 __license__ = "GPL"
 
 
-class tivo_handler():
+class TivoHandler:
     """Class for handling TiVo connections"""
     def __init__(self, mytivo, media):
         """Setup connection to the TiVo.
@@ -16,7 +16,6 @@ class tivo_handler():
         self.username = "tivo"
         self.tivo = mytivo
         self.media = media
-        self.context = ssl._create_unverified_context()
         self.connect()
 
     def tivo_request(self, url, stream=False):
@@ -41,7 +40,7 @@ class tivo_handler():
         self.shows.sort(key=lambda show: show['Title'])
         return self.shows
 
-    def progress(current, total):
+    def progress(self, current, total):
         """Stub Progress indicator"""
         return
 
@@ -55,7 +54,7 @@ class tivo_handler():
         self.fd = open(self.fullpath, 'wb')
         if encode:
             self.fd = tivoencode(self.fd)
-            if self.fd == False:
+            if not self.fd:
                 return False
         if decrypt or encode:
             self.fd = tivodecrypt(self.fd, self.media)
@@ -70,7 +69,7 @@ class tivo_handler():
             self.block = self.request.raw.read(self.bs)
             self.fd.write(self.block)
         prog(self.numblocks, self.numblocks)
-        self.block = self.pagehandle.read(self.filesize % self.bs)
+        self.block = self.request.raw.read(self.filesize % self.bs)
         self.fd.write(self.block)
         self.fd.close()
         return True
