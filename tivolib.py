@@ -46,6 +46,7 @@ class TivoHandler:
         """Trigger a download for the specified TV show.
         Takes a show object as an argument."""
         import sys
+        from clint.textui import progress
         self.myshow = show
         self.fullpath = path + "/" + filename
         self.fd = open(self.fullpath, 'wb')
@@ -58,10 +59,15 @@ class TivoHandler:
             if self.fd == False:
                 return False
         self.r = self.tivo_request(self.myshow['Url'], stream=True)
-        self.chunk_size = 512 * 1024 # .5MB at a time
-        for chunk in self.r.iter_content(self.chunk_size):
-            self.fd.write(chunk)
-        self.fd.close()
+        self.chunk_size = 1024 * 1024 # 1MB at a time
+        self.total_length = int(self.r.headers['TiVo-Estimated-Length'])
+        self.expected_size = (self.total_length / self.chunk_size) + 1
+        for self.chunk in progress.bar(
+                self.r.iter_content(chunk_size=self.chunk_size), 
+                expected_size = self.expected_size):
+            if self.chunk:
+                self.fd.write(self.chunk)
+                self.fd.flush()
         return True
 
 
