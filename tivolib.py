@@ -40,12 +40,9 @@ class TivoHandler:
         self.shows.sort(key=lambda show: show['Title'])
         return self.shows
 
-    def progress(self, current, total):
-        """Stub Progress indicator"""
-        return
 
     def download(self, show, filename, path=".", decrypt=False,
-                 encode=False, prog=progress):
+                 encode=False):
         """Trigger a download for the specified TV show.
         Takes a show object as an argument."""
         import sys
@@ -61,16 +58,9 @@ class TivoHandler:
             if self.fd == False:
                 return False
         self.r = self.tivo_request(self.myshow['Url'], stream=True)
-        self.filesize = int(self.request.headers['TiVo-Estimated-Length'])
-        self.bs = 512 * 1024 # .5MB at a time
-        self.numblocks = self.filesize // self.bs
-        for count in range(1, self.numblocks):
-            prog(count, self.numblocks)
-            self.block = self.request.raw.read(self.bs)
-            self.fd.write(self.block)
-        prog(self.numblocks, self.numblocks)
-        self.block = self.request.raw.read(self.filesize % self.bs)
-        self.fd.write(self.block)
+        self.chunk_size = 512 * 1024 # .5MB at a time
+        for chunk in self.r.iter_content(self.chunk_size):
+            self.fd.write(chunk)
         self.fd.close()
         return True
 

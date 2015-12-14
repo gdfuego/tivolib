@@ -69,13 +69,6 @@ def setup():
     return options
 
 
-def progress(current, total):
-    """Simple progress indicator"""
-    import sys
-    percentcomplete = current * 100 / total
-    sys.stdout.write("\r  " + "%d%% complete" % percentcomplete)
-    sys.stdout.flush()
-
 def printshow(show):
     size = str(int(show['SourceSize']) / 1024 / 1024) + " MB"
     showinfo = size.rjust(10) + "   "
@@ -104,7 +97,7 @@ def main():
         path = options['storage']
     else:
         path = '.'
-    myTivo = tivolib.tivo_handler(options['tivo'], options['media'])
+    myTivo = tivolib.TivoHandler(options['tivo'], options['media'])
     shownum = 1
     shows = myTivo.listshows()
     for show in shows:
@@ -137,7 +130,7 @@ def main():
         print ('Downloading ' + name)
         print
         if myTivo.download(myShow, filename, path=path, decrypt=options['decrypt'], 
-                           encode=options['encode'], prog=progress):
+                           encode=options['encode']):
             print('\nDownload Complete')
         else:
             print('Download Failed')
