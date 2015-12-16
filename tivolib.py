@@ -56,7 +56,7 @@ class TivoHandler:
                 return False
         if decrypt or encode:
             self.fd = tivodecrypt(self.fd, self.media)
-            if self.fd == False:
+            if not self.fd:
                 return False
         self.r = self.tivo_request(self.myshow['Url'], stream=True)
         self.chunk_size = 1024 * 1024 # 1MB at a time
