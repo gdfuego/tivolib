@@ -59,13 +59,11 @@ class TivoHandler:
             if not self.fd:
                 return False
         self.r = self.tivo_request(self.myshow['Url'], stream=True)
-        self.chunk_size = 1024 * 1024 # 1MB at a time
+        self.chunk_size = 1024 * 1024 # 1KB at a time
         self.total_length = int(self.r.headers['TiVo-Estimated-Length'])
         self.expected_size = (self.total_length / self.chunk_size) + 1
-        for self.chunk in progress.bar(
-                self.r.iter_content(chunk_size=self.chunk_size), 
-                expected_size = self.expected_size):
-            if self.chunk:
+        for i in progress.bar(range(self.expected_size)):
+            for self.chunk in self.r.raw.read(self.chunk_size):
                 self.fd.write(self.chunk)
                 self.fd.flush()
         return True
