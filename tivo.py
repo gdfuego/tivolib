@@ -48,9 +48,9 @@ def setup():
             args.encode = config.getboolean('Tivo', 'encode')
         except:
             pass
-    if not args.storage:
+    if args.storage == ".":
         try:
-            args.encode = config.get('Tivo', 'storage')
+            args.storage = config.get('Tivo', 'storage')
         except:
             pass
 
