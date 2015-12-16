@@ -11,53 +11,49 @@ import tivolib
 def setup():
     from ConfigParser import ConfigParser
     import argparse
-    from optparse import OptionParser
-    options = {}
-    options['tivo'] = ''
-    options['media'] = 0
-    options['decrypt'] = False
-    options['encode'] = False
-    # Read the config file
-    config = ConfigParser()
-    config.read([os.path.expanduser('~/.tivorc')])
-    try:
-        options['tivo'] = config.get('Tivo', 'host')
-    except:
-        pass
-    try:
-        options['media'] = config.get('Tivo', 'MAC')
-    except:
-        pass
-    try:
-        options['decrypt'] = config.getboolean('Tivo', 'decrypt')
-    except:
-        pass
-    try:
-        options['encode'] = config.getboolean('Tivo', 'encode')
-    except:
-        pass
-    try:
-        options['storage'] = config.get('Tivo', 'storage')
-    except:
-        pass
 
     parser = argparse.ArgumentParser(description='usage: %prog [options] tivo')
-    parser.add_argument('-d', action="store_true", default=options['decrypt'],
+    parser.add_argument('--decrypt', '-d', action="store_true", default=False,
                         help="Decrypt the file automatically")
-    parser.add_argument('-e', action="store_true", default=options['encode'],
-                        help="Re-Encode the video. (currently broken)")
-    parser.add_argument('--media', '-m', default=options['media'],
-                        help='Media Access Code from TiVo (required).')
+    parser.add_argument('--encode','-e', action="store_true", default=False,
+                        help="Re-Encode the video. (currently broken)"),
+    parser.add_argument('--media', '-m', default=False,
+                        help='Media Access Code from TiVo (required).'),
     parser.add_argument('-s', '--storage', default=".",
-                        help="Location to store downloaded files")
-    parser.add_argument("tivo", nargs='?', default=options['tivo'],
+                        help="Location to store downloaded files"),
+    parser.add_argument("tivo", nargs='?', default=False,
                         help="Tivo to connect to")
     args = parser.parse_args()
 
-    if args.tivo == '':
-        parser.error('You must specify a Tivo device to connect to')
-    if args.media == 0:
-        parser.error('You must specify a Media Access Code (-m)')
+    config = ConfigParser()
+    config.read([os.path.expanduser('~/.tivorc')])
+
+    if not args.tivo:
+        try:
+            args.tivo = config.get('Tivo', 'host')
+        except:
+            parser.error('You must specify a Tivo device to connect to')
+    if not args.media:
+        try:
+            args.media = config.get('Tivo', 'MAC')
+        except:
+            parser.error('You must specify a Media Access Code (-m)') 
+    if not args.decrypt:
+        try:
+            args.decrypt = config.getboolean('Tivo', 'decrypt')
+        except:
+            pass
+    if not args.encode:
+        try:
+            args.encode = config.getboolean('Tivo', 'encode')
+        except:
+            pass
+    if not args.storage:
+        try:
+            args.encode = config.get('Tivo', 'storage')
+        except:
+            pass
+
     return args
 
 
