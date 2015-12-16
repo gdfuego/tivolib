@@ -15,7 +15,7 @@ def setup():
     parser = argparse.ArgumentParser(description='usage: %prog [options] tivo')
     parser.add_argument('--decrypt', '-d', action="store_true", default=False,
                         help="Decrypt the file automatically")
-    parser.add_argument('--encode','-e', action="store_true", default=False,
+    parser.add_argument('--encode', '-e', action="store_true", default=False,
                         help="Re-Encode the video. (currently broken)"),
     parser.add_argument('--media', '-m', default=False,
                         help='Media Access Code from TiVo (required).'),
@@ -37,7 +37,7 @@ def setup():
         try:
             args.media = config.get('Tivo', 'MAC')
         except:
-            parser.error('You must specify a Media Access Code (-m)') 
+            parser.error('You must specify a Media Access Code (-m)')
     if not args.decrypt:
         try:
             args.decrypt = config.getboolean('Tivo', 'decrypt')
@@ -70,6 +70,7 @@ def print_show(show):
     showinfo += show_name(show)
     return showinfo
 
+
 def show_name(show):
     name = show['Title']
     if show.has_key('EpisodeTitle'):
@@ -78,6 +79,7 @@ def show_name(show):
             name += ' [Ep. ' + show['EpisodeNumber'] + "]"
         name += ' ' + show['EpisodeTitle']
     return name
+
 
 def main():
     options = setup()
