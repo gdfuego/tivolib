@@ -10,6 +10,7 @@ import tivolib
 
 def setup():
     from ConfigParser import ConfigParser
+    import argparse
     from optparse import OptionParser
     options = {}
     options['tivo'] = ''
@@ -40,35 +41,27 @@ def setup():
     except:
         pass
 
-    # Read commandline options
-    parser = OptionParser('usage: %prog [options] tivo')
-    parser.add_option('-d', action='store_true', dest='decrypt',
-                      help='Decrypt the file automatically')
-    parser.add_option('-e', action='store_true', dest='encode',
-                      help='Re-Encode the video.  Implies decrypt. (currently broken)')
-    parser.add_option('-m', '--media',
-                      help='Media Access Code from TiVo (required).')
-    parser.add_option('-s', '--storage',
-                      help="Location to store downloaded files")
-    (optionlist, args) = parser.parse_args()
-    if len(args) == 1:
-        options['tivo'] = args[0]
-    if options['tivo'] == '':
+    parser = argparse.ArgumentParser(description='usage: %prog [options] tivo')
+    parser.add_argument('-d', action="store_true", default=options['decrypt'],
+                        help="Decrypt the file automatically")
+    parser.add_argument('-e', action="store_true", default=options['encode'],
+                        help="Re-Encode the video. (currently broken)")
+    parser.add_argument('--media', '-m', default=options['media'],
+                        help='Media Access Code from TiVo (required).')
+    parser.add_argument('-s', '--storage', default=".",
+                        help="Location to store downloaded files")
+    parser.add_argument("tivo", nargs='?', default=options['tivo'],
+                        help="Tivo to connect to")
+    args = parser.parse_args()
+
+    if args.tivo == '':
         parser.error('You must specify a Tivo device to connect to')
-    if (not optionlist.media) and (options['media'] == 0):
+    if args.media == 0:
         parser.error('You must specify a Media Access Code (-m)')
-    if optionlist.media:
-        options['media'] = optionlist.media
-    if optionlist.decrypt:
-        options['decrypt'] = optionlist.decrypt
-    if optionlist.encode:
-        options['encode'] = optionlist.encode
-    if optionlist.storage:
-        options['storage'] = optionlist.storage
-    return options
+    return args
 
 
-def printshow(show):
+def print_show(show):
     size = str(int(show['SourceSize']) / 1024 / 1024) + " MB"
     showinfo = size.rjust(10) + "   "
     if show.has_key('InProgress'):
@@ -92,16 +85,13 @@ def show_name(show):
 
 def main():
     options = setup()
-    if options.has_key('storage'):
-        path = options['storage']
-    else:
-        path = '.'
-    tivo = tivolib.TivoHandler(options['tivo'], options['media'])
+    path = options.storage
+    tivo = tivolib.TivoHandler(options.tivo, options.media)
     shownum = 1
     shows = tivo.listshows()
     for show in shows:
         print str(shownum).ljust(5),
-        print printshow(show).encode('utf-8')
+        print print_show(show).encode('utf-8')
         shownum = shownum + 1
 
     while 1:
@@ -119,17 +109,17 @@ def main():
         name = show_name(show)
         # Remove unsafe filename characters
         name = re.sub('[*!]', '', name)
-        if options['decrypt']:
+        if options.decrypt:
             filename = name + '.mpeg'
-            if options['encode']:
+            if options.encode:
                 filename = name + '.ogv'
         else:
             filename = name + '.TiVo'
         print
         print 'Downloading ' + name
         print
-        if tivo.download(show, filename, path=path, decrypt=options['decrypt'],
-                         encode=options['encode']):
+        if tivo.download(show, filename, path=path, decrypt=options.decrypt,
+                         encode=options.encode):
             print '\nDownload Complete'
         else:
             print 'Download Failed'
