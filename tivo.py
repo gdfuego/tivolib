@@ -13,9 +13,9 @@ def setup():
     import argparse
 
     parser = argparse.ArgumentParser(description='usage: %prog [options] tivo')
-    parser.add_argument('--decrypt', '-d', action="store_true", default=False,
+    parser.add_argument('--decrypt', '-d', action="store_true",
                         help="Decrypt the file automatically")
-    parser.add_argument('--encode', '-e', action="store_true", default=False,
+    parser.add_argument('--encode', '-e', action="store_true",
                         help="Re-Encode the video. (currently broken)"),
     parser.add_argument('--media', '-m', default=False,
                         help='Media Access Code from TiVo (required).'),
@@ -24,6 +24,7 @@ def setup():
     parser.add_argument("tivo", nargs='?', default=False,
                         help="Tivo to connect to")
     args = parser.parse_args()
+    print args
 
     config = ConfigParser()
     config.read([os.path.expanduser('~/.tivorc')])
@@ -48,7 +49,7 @@ def setup():
             args.encode = config.getboolean('Tivo', 'encode')
         except:
             pass
-    if args.storage == False:
+    if not args.storage:
         try:
             args.storage = config.get('Tivo', 'storage')
         except:
