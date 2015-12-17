@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__version__ = "0.8"
+__version__ = "0.9"
 __author__ = "Gregory Boyce <gregory.boyce@gmail.com>"
 __copyright__ = "(c) Coypright 2010 by Gregory Boyce <gregory.boyce@gmail.com>"
 __license__ = "GPL"
