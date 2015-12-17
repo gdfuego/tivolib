@@ -22,23 +22,25 @@ class TivoHandler:
         import requests
         requests.packages.urllib3.disable_warnings()
         from requests.auth import HTTPDigestAuth
-        r = requests.get(
+        request = requests.get(
             url, auth=HTTPDigestAuth(self.username, self.media),
             verify=False, stream=stream)
-        return r
+        return request
 
     def connect(self):
         """Establish the initial connection"""
-        r = self.tivo_request("https://" + self.tivo + "/nowplaying/index.htl")
+        test_url = "https://" + self.tivo + "/nowplaying/index.html"
+        self.tivo_request(test_url)
 
     def listshows(self):
         """Obtain a list of shows"""
-        url = "https://" + self.tivo + \
-            "/TiVoConnect?Container=%2FNowPlaying&Command=QueryContainer&Recurse=Yes"
-        self.request = self.tivo_request(url)
-        self.shows = show_parser(self.request.text)
-        self.shows.sort(key=lambda show: show['Title'])
-        return self.shows
+        url = "https://" + self.tivo
+        url += "/TiVoConnect?Container=%2FNowPlaying&"
+        url += "Command=QueryContainer&Recurse=Yes"
+        request = self.tivo_request(url)
+        shows = show_parser(request.text)
+        shows.sort(key=lambda show: show['Title'])
+        return shows
 
 
     def download(self, show, filename, path=".", decrypt=False,
@@ -47,25 +49,25 @@ class TivoHandler:
         Takes a show object as an argument."""
         import sys
         from clint.textui import progress
-        self.myshow = show
-        self.fullpath = path + "/" + filename
-        self.fd = open(self.fullpath, 'wb')
+        myshow = show
+        fullpath = path + "/" + filename
+        fd = open(fullpath, 'wb')
         if encode:
-            self.fd = tivoencode(self.fd)
-            if not self.fd:
+            fd = tivoencode(fd)
+            if not fd:
                 return False
         if decrypt or encode:
-            self.fd = tivodecrypt(self.fd, self.media)
-            if not self.fd:
+            fd = tivodecrypt(fd, self.media)
+            if not fd:
                 return False
-        self.r = self.tivo_request(self.myshow['Url'], stream=True)
-        self.chunk_size = 1024 * 1024 # 1KB at a time
-        self.total_length = int(self.r.headers['TiVo-Estimated-Length'])
-        self.expected_size = (self.total_length / self.chunk_size) + 1
-        for i in progress.bar(range(self.expected_size)):
-            for self.chunk in self.r.raw.read(self.chunk_size):
-                self.fd.write(self.chunk)
-                self.fd.flush()
+        r = self.tivo_request(myshow['Url'], stream=True)
+        chunk_size = 1024 * 1024 # 1KB at a time
+        total_length = int(r.headers['TiVo-Estimated-Length'])
+        expected_size = (total_length / chunk_size) + 1
+        for i in progress.bar(range(expected_size)):
+            for chunk in r.raw.read(chunk_size):
+                fd.write(chunk)
+                fd.flush()
         return True
 
 

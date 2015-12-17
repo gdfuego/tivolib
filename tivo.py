@@ -24,7 +24,6 @@ def setup():
     parser.add_argument("tivo", nargs='?', default=False,
                         help="Tivo to connect to")
     args = parser.parse_args()
-    print args
 
     config = ConfigParser()
     config.read([os.path.expanduser('~/.tivorc')])
