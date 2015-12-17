@@ -19,7 +19,7 @@ def setup():
                         help="Re-Encode the video. (currently broken)"),
     parser.add_argument('--media', '-m', default=False,
                         help='Media Access Code from TiVo (required).'),
-    parser.add_argument('-s', '--storage', default=".",
+    parser.add_argument('-s', '--storage', default=False,
                         help="Location to store downloaded files"),
     parser.add_argument("tivo", nargs='?', default=False,
                         help="Tivo to connect to")
@@ -48,11 +48,11 @@ def setup():
             args.encode = config.getboolean('Tivo', 'encode')
         except:
             pass
-    if args.storage == ".":
+    if args.storage == False:
         try:
             args.storage = config.get('Tivo', 'storage')
         except:
-            pass
+            args.storage = "."
 
     return args
 
