@@ -20,7 +20,7 @@ class TivoHandler:
 
     def tivo_request(self, url, stream=False):
         import requests
-        requests.packages.urllib3.disable_warnings()
+        #requests.packages.urllib3.disable_warnings()
         from requests.auth import HTTPDigestAuth
         request = requests.get(
             url, auth=HTTPDigestAuth(self.username, self.media),
