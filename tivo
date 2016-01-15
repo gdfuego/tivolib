@@ -75,8 +75,10 @@ def show_name(show):
     name = show['Title']
     if show.has_key('EpisodeTitle'):
         name += ':'
-        if show.has_key('EpisodeNumber') and show['EpisodeNumber'] != "0":
-            name += ' [Ep. ' + show['EpisodeNumber'] + "]"
+        if show.has_key('EpisodeNumber') and show['EpisodeNumber'] != "0" and len(show['EpisodeNumber'])<=4:
+            season = show['EpisodeNumber'][:-2]
+            episode = show['EpisodeNumber'][-2:]
+            name += ' [Ep. S' + season + 'E' + episode + "]"
         name += ' ' + show['EpisodeTitle']
     return name
 
